@@ -9,6 +9,9 @@ public class Main extends JFrame {
     private JTextField txtPlaca, txtMarca, txtCilindraje, txtTipoCombustible, txtColor;
     private JTextArea txtPropietarios;
     private JButton btnRegistrar, btnLimpiar;
+    private String url = "jdbc:mysql://localhost:3306/vehiculos";
+    private String user = "root";
+    private String password = "123456";
 
     public Main() {
         super("Registro de Vehículos");
@@ -67,6 +70,10 @@ public class Main extends JFrame {
         setLocationRelativeTo(null);
     }
 
+    public void mostrarInterfaz() {
+        SwingUtilities.invokeLater(() -> setVisible(true));
+    }
+
     private void registrarVehiculo() {
         String placa = txtPlaca.getText();
         String marca = txtMarca.getText();
@@ -76,16 +83,16 @@ public class Main extends JFrame {
         String propietariosText = txtPropietarios.getText();
         String[] propietariosArray = propietariosText.split(",");
 
-        ArrayList<Propietario> propietarios = new ArrayList<>();
+        ArrayList<Propietarios.Propietario> propietarios = new ArrayList<>();
         for (String propietarioStr : propietariosArray) {
             String[] datosPropietario = propietarioStr.trim().split("\\s*,\\s*");
             if (datosPropietario.length == 3) {
-                Propietario propietario = new Propietario(datosPropietario[0], datosPropietario[1], datosPropietario[2]);
+                Propietarios.Propietario propietario = new Propietarios.Propietario(datosPropietario[0], datosPropietario[1], datosPropietario[2]);
                 propietarios.add(propietario);
             }
         }
 
-        Vehiculo vehiculo = new Vehiculo(placa, marca, cilindraje, tipoCombustible, color, propietarios);
+        Vehiculos.Vehiculo vehiculo = new Vehiculos.Vehiculo(placa, marca, cilindraje, tipoCombustible, color, propietarios);
         guardarVehiculoEnBD(vehiculo);
 
         JOptionPane.showMessageDialog(this, "Vehículo registrado correctamente.");
@@ -102,12 +109,12 @@ public class Main extends JFrame {
         txtPropietarios.setText("");
     }
 
-    private void guardarVehiculoEnBD(Vehiculo vehiculo) {
+    private void guardarVehiculoEnBD(Vehiculos.Vehiculo vehiculo) {
         Connection conn = null;
         PreparedStatement stmt = null;
 
         try {
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/nombre_de_tu_base_de_datos", "usuario", "contraseña");
+            conn = DriverManager.getConnection(url, user, password);
 
             String sql = "INSERT INTO vehiculos (placa, marca, cilindraje, tipo_combustible, color) VALUES (?, ?, ?, ?, ?)";
             stmt = conn.prepareStatement(sql);
@@ -137,10 +144,9 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new Main().setVisible(true);
-            }
+        SwingUtilities.invokeLater(() -> {
+            Main main = new Main();
+            main.mostrarInterfaz();
         });
     }
 }
